@@ -97,5 +97,6 @@ do
 done
 
 # 生成された音響モデルを指定フォルダにコピー
-cp voices/qst001/ver1/nitech_jp_atr503_m001.htsvoice "$HTSVOICEPATH"
+cd "$STARTPATH"
+cp tools/HTS-demo_NIT-ATR503-M001/voices/qst001/ver1/nitech_jp_atr503_m001.htsvoice "$HTSVOICEPATH"
 
