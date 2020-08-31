@@ -11,6 +11,8 @@ OPTIONS=""
 
 STARTPATH=`pwd`
 
+echo ""
+
 # 引数読み込み
 if [ $1 = "-G" ]; then
   APIMODE="G"
@@ -65,13 +67,24 @@ rm -rf tmp
 mkdir tmp
 for file in `ls "$INPUTDIRPATH"`
 do
-  vol=`sox "${INPUTDIRPATH}/${file}" -n stat -v 2>&1`
+  echo -e "Convert ${file} to ${file}.raw"
+
+  # ffmpeg で wav に変換しておく
+  ffmpeg -i ${INPUTDIRPATH}/${file} -acodec pcm_s16le -ar 44100 "${INPUTDIRPATH}/${file%.*}.wav" > /dev/null 2>&1
+
+  # 音量を計測
+  vol=`sox "${INPUTDIRPATH}/${file%.*}.wav" -n stat -v 2>&1`
   volGain=`echo "scale=9; ${vol} / 2.86" | bc`
 
-  sox "${INPUTDIRPATH}/${file}" -t raw -r 16k -e signed-integer -b 16 -c 1 -B "$(pwd)/tmp/${file}.raw" vol ${volGain}
+  # raw ファイルを作成
+  sox "${INPUTDIRPATH}/${file%.*}.wav" -t raw -r 16k -e signed-integer -b 16 -c 1 -B "$(pwd)/tmp/${file}.raw" vol ${volGain}
+
+  # wav ファイルを削除
+  rm "${INPUTDIRPATH}/${file%.*}.wav"
 done
 
 # splitAndGetLabel でラベルデータを作成
+echo -e "\nExecute splitAndGetLabel ...\n"
 if [ ${APIMODE} = "J" ] ; then
   ./splitAndGetLabel ${OPTIONS}
 else
@@ -79,6 +92,7 @@ else
 fi
 
 # 音響モデルのビルド
+echo -e "Build acoustic model ...\n"
 cd ../../HTS-demo_NIT-ATR503-M001/
 fileCount=`find data/raw -type f | wc -l`
 if [ ${fileCount} -lt 503 ] ; then
@@ -100,3 +114,4 @@ done
 cd "$STARTPATH"
 cp tools/HTS-demo_NIT-ATR503-M001/voices/qst001/ver1/nitech_jp_atr503_m001.htsvoice "$HTSVOICEPATH"
 
+echo -e "Output to $HTSVOICEPATH. Finished.\n'
