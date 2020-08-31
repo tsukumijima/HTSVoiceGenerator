@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 cd tools
 
 rm -f bccwj.60k.pdp_new.htkdic
 
 loopCnt=0
-cat dictation-kit-v4.4/model/lang_m/bccwj.60k.pdp.htkdic | while read juliusLine
+cat julius-dictation-kit/model/lang_m/bccwj.60k.pdp.htkdic | while read juliusLine
 do
 	if [ ${loopCnt} -lt 1 ] ; then
 		echo "${juliusLine}" >> bccwj.60k.pdp_new.htkdic
@@ -32,7 +32,7 @@ do
 		continue
 	fi
 
-	grep -E "^${juliusWord}," open_jtalk-1.10/mecab-naist-jdic/naist-jdic.csv | while read openJTalkLine
+	grep -E "^${juliusWord}," open_jtalk/mecab-naist-jdic/naist-jdic.csv | while read openJTalkLine
 	do
 		openJTalkRead=`echo "${openJTalkLine}" | cut -d "," -f 13`
 		if [ "${openJTalkRead}" = "*" ] ; then
@@ -47,7 +47,7 @@ done
 
 rm -f tmp.csv
 
-cat open_jtalk-1.10/mecab-naist-jdic/naist-jdic.csv | while read openJTalkLine
+cat open_jtalk/mecab-naist-jdic/naist-jdic.csv | while read openJTalkLine
 do
 	openJTalkRead=`echo "${openJTalkLine}" | cut -d "," -f 13`
 	if [ "${openJTalkRead}" = "*" ] ; then
@@ -56,15 +56,15 @@ do
 
 	openJTalkWord=`echo "${openJTalkLine}" | cut -d "," -f 1`
 
-	if [ "$(grep "\[${openJTalkWord}\]" dictation-kit-v4.4/model/lang_m/bccwj.60k.pdp.htkdic)" != "" ] ; then
+	if [ "$(grep "\[${openJTalkWord}\]" julius-dictation-kit/model/lang_m/bccwj.60k.pdp.htkdic)" != "" ] ; then
 		outputLine="${openJTalkWord}　,$(echo "${openJTalkLine}" | cut -d "," -f 2-)"
 		echo "${outputLine}" >> tmp.csv 
 	fi	
 done
 
-mv -f tmp.csv open_jtalk-1.10/mecab-naist-jdic/naist-jdic.csv
+mv -f tmp.csv open_jtalk/mecab-naist-jdic/naist-jdic.csv
 
-cd open_jtalk-1.10/
+cd open_jtalk/
 ./configure --prefix=$TOOLSDIR/open_jtalk --with-hts-engine-header-path=$TOOLSDIR/hts_engine_API/include --with-hts-engine-library-path=$TOOLSDIR/hts_engine_API/lib
 make
 make install

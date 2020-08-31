@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 [-G APIKEY] INPUTDIRPATH HTSVOICEPATH [OpenJTalkOption] [BASEHTSVOICEPATH]"
+  echo "Usage: $0 [-G APIKey] InputDirPath HTSVoicePath [OpenJTalkOption] [BaseHTSVoicePath]"
   exit -1
 fi
 
@@ -11,6 +11,7 @@ OPTIONS=""
 
 STARTPATH=`pwd`
 
+# 引数読み込み
 if [ $1 = "-G" ]; then
   APIMODE="G"
   APIKEY=$2
@@ -26,6 +27,8 @@ else
   cd "$STARTPATH"
   shift 2
 fi
+
+# OpenJTalk での音声認識時に使用する音響モデル
 mFlag=0
 while [ $# -ge 2 -a "$(echo "$1" | cut -c 1)" = "-" ]
 do
@@ -45,15 +48,17 @@ cd "$STARTPATH"
 cd tools
 toolsDir=`pwd`
 
+# 古い音声を削除
 rm -f HTS-demo_NIT-ATR503-M001/data/raw/*
 rm -f HTS-demo_NIT-ATR503-M001/data/labels/mono/*
 rm -f HTS-demo_NIT-ATR503-M001/data/labels/full/*
 
-rm -f segment_adapt_windows-v1.0/akihiro/*.wav
-rm -f segment_adapt_windows-v1.0/akihiro/*.raw
-rm -f segment_adapt_windows-v1.0/akihiro/labels/mono/*
-rm -f segment_adapt_windows-v1.0/akihiro/labels/full/*
+rm -f segment_adapt/voices/*.wav
+rm -f segment_adapt/voices/*.raw
+rm -f segment_adapt/voices/labels/mono/*
+rm -f segment_adapt/voices/labels/full/*
 
+# SOX で raw 音声を作成
 mkdir splitAndGetLabel/build/ 2> /dev/null
 cd splitAndGetLabel/build/
 rm -rf tmp
@@ -65,12 +70,15 @@ do
 
   sox "${INPUTDIRPATH}/${file}" -t raw -r 16k -e signed-integer -b 16 -c 1 -B "$(pwd)/tmp/${file}.raw" vol ${volGain}
 done
+
+# splitAndGetLabel でラベルデータを作成
 if [ ${APIMODE} = "J" ] ; then
   ./splitAndGetLabel ${OPTIONS}
 else
   ./splitAndGetLabel -${APIMODE} ${APIKEY} ${OPTIONS}
 fi
 
+# 音響モデルのビルド
 cd ../../HTS-demo_NIT-ATR503-M001/
 fileCount=`find data/raw -type f | wc -l`
 if [ ${fileCount} -lt 503 ] ; then
@@ -88,5 +96,6 @@ do
   line=`ps x | grep Training.pl | grep -v grep`
 done
 
+# 生成された音響モデルを指定フォルダにコピー
 cp voices/qst001/ver1/nitech_jp_atr503_m001.htsvoice "$HTSVOICEPATH"
 
