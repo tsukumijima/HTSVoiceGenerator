@@ -1,7 +1,12 @@
 diff -u -r segment_adapt_windows-v1.0_original/segment_adapt.pl segment_adapt_windows-v1.0/segment_adapt.pl
 --- segment_adapt_windows-v1.0_original/segment_adapt.pl	2012-05-05 13:38:24.000000000 +0900
-+++ segment_adapt_windows-v1.0/segment_adapt.pl	2017-04-27 13:40:03.234758930 +0900
-@@ -5,7 +5,7 @@
++++ segment_adapt_windows-v1.0/segment_adapt.pl	2020-08-31 01:52:58.861630970 +0900
+@@ -1,11 +1,11 @@
+ #!/usr/bin/perl
+ #atr503 labels wav
+ #–¼‘O‚Ía01‚©‚ça99‚Ü‚Å‚Æ‚·‚éB
+-$speaker = "akihiro";
++$speaker = "voices";
  $label = $speaker . "/labels";
  @abc = (a);
  ## julius4 executable

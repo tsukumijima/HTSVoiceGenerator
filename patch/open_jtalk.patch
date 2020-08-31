@@ -1,0 +1,19 @@
+diff -u -r open_jtalk_original/jpcommon/jpcommon_label.c open_jtalk/jpcommon/jpcommon_label.c
+--- open_jtalk_original/jpcommon/jpcommon_label.c	2020-08-31 01:00:09.726464700 +0900
++++ open_jtalk/jpcommon/jpcommon_label.c	2020-08-31 01:00:20.205769352 +0900
+@@ -296,6 +296,7 @@ static int index_accent_phrase_in_breath
+       if (index == a)
+          break;
+    }
++   if (i > 3) i = 3;
+    return i;
+ }
+ 
+@@ -395,6 +396,7 @@ static int count_mora_in_utterance(JPCom
+ 
+    for (i = 0, index = m->next; index != NULL; index = index->next)
+       i++;
++   if (i > 10) i = 10;
+    return index_mora_in_utterance(m) + i;
+ }
+ 

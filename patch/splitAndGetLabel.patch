@@ -1,0 +1,123 @@
+diff -u -r splitAndGetLabel_original/CMakeLists.txt splitAndGetLabel/CMakeLists.txt
+--- splitAndGetLabel_original/CMakeLists.txt	2017-11-12 18:51:51.000000000 +0900
++++ splitAndGetLabel/CMakeLists.txt	2020-08-31 12:13:52.308721640 +0900
+@@ -1,5 +1,7 @@
+ cmake_minimum_required(VERSION 3.5.1)
+ 
++project(splitAndGetLabel)
++
+ include_directories(../julius/libsent/include)
+ include_directories(../julius/libjulius/include)
+ 
+@@ -9,3 +11,10 @@
+ add_executable(splitAndGetLabel main.cpp execJulius.cpp recordAndSplit.cpp)
+ 
+ target_link_libraries(splitAndGetLabel julius sent pthread dl z asound pulse-simple pulse)
++
++# For OpenMP
++find_package(OpenMP REQUIRED)
++if(OpenMP_FOUND)
++    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
++endif()
+diff -u -r splitAndGetLabel_original/execJulius.cpp splitAndGetLabel/execJulius.cpp
+--- splitAndGetLabel_original/execJulius.cpp	2017-11-12 18:51:51.000000000 +0900
++++ splitAndGetLabel/execJulius.cpp	2020-08-31 12:00:17.419460234 +0900
+@@ -20,15 +20,15 @@
+ 	argv[1] = new char[64];
+ 	strcpy(argv[1], "-C");
+ 	argv[2] = new char[64];
+-	strcpy(argv[2], "../../dictation-kit-v4.4/main.jconf");
++	strcpy(argv[2], "../../julius-dictation-kit/main.jconf");
+ 	argv[3] = new char[64];
+ 	strcpy(argv[3], "-C");
+ 	argv[4] = new char[64];
+-	strcpy(argv[4], "../../dictation-kit-v4.4/am-dnn.jconf");
++	strcpy(argv[4], "../../julius-dictation-kit/am-dnn.jconf");
+ 	argv[5] = new char[64];
+ 	strcpy(argv[5], "-dnnconf");
+ 	argv[6] = new char[64];
+-	strcpy(argv[6], "../../dictation-kit-v4.4/julius.dnnconf");
++	strcpy(argv[6], "../../julius-dictation-kit/julius.dnnconf");
+ 	argv[7] = new char[64];
+ 	strcpy(argv[7], "-v");
+ 	argv[8] = new char[64];
+@@ -36,7 +36,7 @@
+ 	if (ifs.is_open()) {	// ファイルの有無
+ 		strcpy(argv[8], "../../bccwj.60k.pdp_new.htkdic");
+ 	} else {
+-		strcpy(argv[8], "../../dictation-kit-v4.4/model/lang_m/bccwj.60k.pdp.htkdic");
++		strcpy(argv[8], "../../julius-dictation-kit/model/lang_m/bccwj.60k.pdp.htkdic");
+ 	}
+ 	argv[9] = new char[64];
+ 	strcpy(argv[9], "-input");
+diff -u -r splitAndGetLabel_original/recordAndSplit.cpp splitAndGetLabel/recordAndSplit.cpp
+--- splitAndGetLabel_original/recordAndSplit.cpp	2017-11-12 18:51:51.000000000 +0900
++++ splitAndGetLabel/recordAndSplit.cpp	2020-08-31 12:05:59.849196839 +0900
+@@ -32,32 +32,32 @@
+ 		return;
+ 	}
+ 	char command[MAXLINELEN];
+-	snprintf(command, MAXLINELEN, "cd ../../segment_adapt_windows-v1.0/ && perl segment_adapt.pl && cd \"%s\"", originalPath);
++	snprintf(command, MAXLINELEN, "cd ../../segment_adapt/ && perl segment_adapt.pl && cd \"%s\"", originalPath);
+ 	system(command);
+ 
+ 	for (int no = 1; no < fileCount; no++) {
+ 		char fromStr[MAXLINELEN];
+ 		char toStr[MAXLINELEN];
+ 
+-		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/data/raw/a%02d.raw", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/raw/a%02d.raw", no);
+ 		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/raw/nitech_jp_atr503_m001_%s%02d.raw", fileCountAlphabet.c_str(), no);
+ 		rename(fromStr, toStr);
+ 
+-		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/data/mono/a%02d.lab", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/mono/a%02d.lab", no);
+ 		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/mono/nitech_jp_atr503_m001_%s%02d.lab", fileCountAlphabet.c_str(), no);
+ 		rename(fromStr, toStr);
+ 
+-		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/data/full/a%02d.lab", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/full/a%02d.lab", no);
+ 		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/full/nitech_jp_atr503_m001_%s%02d.lab", fileCountAlphabet.c_str(), no);
+ 		rename(fromStr, toStr);
+ 
+-		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/a%02d.raw", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/a%02d.raw", no);
+ 		remove(fromStr);
+ 
+-		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/mono/a%02d.lab", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/labels/mono/a%02d.lab", no);
+ 		remove(fromStr);
+ 
+-		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/full/a%02d.lab", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/labels/full/a%02d.lab", no);
+ 		remove(fromStr);
+ 	}
+ 
+@@ -141,7 +141,7 @@
+ 	}
+ 
+ 	char rawFilePath[MAXLINELEN];
+-	snprintf(rawFilePath, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/a%02d.raw", fileCount);
++	snprintf(rawFilePath, MAXLINELEN, "../../segment_adapt/voices/a%02d.raw", fileCount);
+ 
+ 	FILE *rawFp = fopen(rawFilePath, "wb");
+ 	if (rawFp == NULL) {
+@@ -317,7 +317,7 @@
+ 	} while (strcmp(log, "[Output label]\n") != 0);
+ 
+ 	char monoFilePath[MAXLINELEN];
+-	snprintf(monoFilePath, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/mono/a%02d.lab", fileCount);
++	snprintf(monoFilePath, MAXLINELEN, "../../segment_adapt/voices/labels/mono/a%02d.lab", fileCount);
+ 
+ 	FILE *monoFp = fopen(monoFilePath, "w");
+ 	if (monoFp == NULL) {
+@@ -328,7 +328,7 @@
+ 	}
+ 
+ 	char fullFilePath[MAXLINELEN];
+-	snprintf(fullFilePath, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/full/a%02d.lab", fileCount);
++	snprintf(fullFilePath, MAXLINELEN, "../../segment_adapt/voices/labels/full/a%02d.lab", fileCount);
+ 
+ 	FILE *fullFp = fopen(fullFilePath, "w");
+ 	if (fullFp == NULL) {

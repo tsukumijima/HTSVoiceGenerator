@@ -10,3 +10,14 @@ diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/scripts/Config.pm.in HTS-de
  $maxdev      = @MAXDEV@;        # max standard dev coef to control HSMM maximum duration
  $mindur      = @MINDUR@;        # min state duration to be evaluated
  $wf          = @WFLOOR@;        # mixture weight flooring
+diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/Makefile.in HTS-demo_NIT-ATR503-M001/Makefile.in
+--- HTS-demo_NIT-ATR503-M001_original/Makefile.in	2015-12-25 21:06:27.000000000 +0900
++++ HTS-demo_NIT-ATR503-M001/Makefile.in	2020-08-31 13:14:53.498071655 +0900
+@@ -49,7 +49,7 @@
+ 
+ voice:
+ 	echo "Running a training/synthesis perl script (Training.pl) in background...."
+-	@PERL@ scripts/Training.pl scripts/Config.pm > log 2>&1 &
++	@PERL@ scripts/Training.pl ./scripts/Config.pm > log 2>&1 &
+ 
+ clean: clean-data clean-voice
