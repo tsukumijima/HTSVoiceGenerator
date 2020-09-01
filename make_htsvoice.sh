@@ -5,9 +5,12 @@ if [ $# -lt 2 ]; then
   exit -1
 fi
 
-APIMODE="J"  #J:julius, G:google cloud speech API
+APIMODE="J" # J:julius, G:google cloud speech API
 APIKEY=""
 OPTIONS=""
+
+UPPERF0=500 # 基本周波数抽出の上限 (Hz) (女性の声の場合は 500 (Hz)・男性の声の場合は 200 (Hz) 程度が良いらしい)
+NITER=50 # トレーニングの反復回数 (増やすと精度が上がるらしいが、その分時間がかかる)
 
 STARTPATH=`pwd`
 
@@ -93,16 +96,24 @@ fi
 
 # 音響モデルのビルド
 echo -e "Build acoustic model ...\n"
+
 cd ../../HTS-demo_NIT-ATR503-M001/
 fileCount=`find data/raw -type f | wc -l`
+
 if [ ${fileCount} -lt 503 ] ; then
-  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin UPPERF0=500 NITER=`expr 503 \* 50 / ${fileCount}`
+  # ファイル数が 503 以下 (ファイル数が少なくなればなるほどトレーニングの反復回数が増える)
+  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin UPPERF0=${UPPERF0} NITER=`expr 503 \* ${NITER} / ${fileCount}`
 else
-  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin UPPERF0=500 NITER=50
+  # ファイル数が 503 以上
+  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin UPPERF0=${UPPERF0} NITER=${NITER}
 fi
+
+# make を実行
 make clean
 make
 
+# プロセスが実行されている間待機する
+# 出力内容は tail -f tools/HTS-demo_NIT-ATR503-M001/log で確認できる
 line=`ps x | grep Training.pl | grep -v grep`
 while [ "$line" != "" ]
 do
