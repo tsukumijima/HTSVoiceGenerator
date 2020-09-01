@@ -118,3 +118,4 @@ cd ../..
 # 解凍後のアーカイブファイルを削除
 rm -f v4.5.tar.gz dictation-kit-4.5.zip segment_adapt_windows-v1.0.zip HTS-2.3_for_HTK-3.4.1.tar.bz2 hts_engine_API-1.10.tar.gz SPTK-3.10.tar.gz HTS-demo_NIT-ATR503-M001.tar.bz2 open_jtalk-1.11.tar.gz v0.2.tar.gz
 
+echo -e "\n\nInstallation is complete.\n"
