@@ -1,64 +1,326 @@
-diff -u -r segment_adapt_windows-v1.0_original/segment_adapt.pl segment_adapt_windows-v1.0/segment_adapt.pl
---- segment_adapt_windows-v1.0_original/segment_adapt.pl	2012-05-05 13:38:24.000000000 +0900
-+++ segment_adapt_windows-v1.0/segment_adapt.pl	2020-08-31 01:52:58.861630970 +0900
+diff -u -r -x voices segment_adapt_original/segment_adapt.pl segment_adapt/segment_adapt.pl
+--- segment_adapt_original/segment_adapt.pl	2012-05-05 13:38:24.000000000 +0900
++++ segment_adapt/segment_adapt.pl	2020-09-01 23:06:47.135084599 +0900
 @@ -1,11 +1,11 @@
  #!/usr/bin/perl
- #atr503 labels wav
- #名前はa01からa99までとする。
+-#atr503 labels wav
+-#名前はa01からa99までとする。
 -$speaker = "akihiro";
++
++# atr503 labels wav
 +$speaker = "voices";
  $label = $speaker . "/labels";
- @abc = (a);
+-@abc = (a);
++
  ## julius4 executable
 -$julius4bin="./bin/julius-4.2.1.exe";
 +$julius4bin="../julius/julius/julius";
  
  ## acoustic model
  $hmmdefs="./models/hmmdefs_monof_mix16_gid.binhmm"; # monophone model
-@@ -26,10 +26,7 @@
- 	$abcnum += 1;
- }
- if($abcnum==1){
+@@ -16,162 +16,154 @@
+ mkdir $speaker."/data/mono";
+ mkdir $speaker."/data/full";
+ mkdir $speaker."/data/raw";
+-@filenum = (0,0);
+-$abcnum = 0;
++
++$filenum = 0;
++
+ while(){
+-#### initialize
+-if($filenum[0]==9 && $filenum[1]==9){
+-	$filenum[0] =0;
+-	$filenum[1] =0;
+-	$abcnum += 1;
+-}
+-if($abcnum==1){
 -	print "Error: cannot open wav file \n";
 -	print "push key\n";
 -	<STDIN>;
 -	die;
-+	last;
- }
- if($filenum[1]==9){
- 	$filenum[0] +=1;
-@@ -40,7 +37,7 @@
- $filename = $abc[$abcnum].$filenum[0].$filenum[1];
- $monofile = $label."/mono/${filename}.lab";
- $fullfile = $label."/full/${filename}.lab";
+-}
+-if($filenum[1]==9){
+-	$filenum[0] +=1;
+-	$filenum[1] =0;
+-}else{
+-	$filenum[1] += 1;
+-}
+-$filename = $abc[$abcnum].$filenum[0].$filenum[1];
+-$monofile = $label."/mono/${filename}.lab";
+-$fullfile = $label."/full/${filename}.lab";
 -$speechfile = $speaker."/${filename}.wav";
-+$speechfile = $speaker."/${filename}.raw";
- print "Start segmentation $filename \n";
- if (-r $speechfile) {
- #### generate speech grammar 'tmp.dfa' and 'tmp.dict' from transcription
-@@ -74,7 +71,7 @@
- 		s/ //g;
- 		$line = 1;
-     }
+-print "Start segmentation $filename \n";
+-if (-r $speechfile) {
+-#### generate speech grammar 'tmp.dfa' and 'tmp.dict' from transcription
+-
+-# clean temporary file
+-unlink("$TMPDIR/tmp.dfa") if (-r "$TMPDIR/tmp.dfa");
+-unlink("$TMPDIR/tmp.dict") if (-r "$TMPDIR/tmp.dict");
+-
+-## read transcription
+-@words=();
+-$line = 0;
+-open(TRANS_MONO, "$monofile");
+-while(<TRANS_MONO>) {
+-    chomp;
+-    next if /^[ \t\n]*$/;
+-    if($line == 1){
+-    	s/pau/sp/;
+-		s/A/a/;
+-		s/I/i/;
+-		s/U/u/;
+-		s/E/e/;
+-		s/O/o/;
+-		s/cl/q/;
+-		s/sil$/silE/;
+-		s/[0-9]+//g;
+-		s/ //g;
+-	}
+-	if($line == 0){
+-		s/sil$/silB/;
+-		s/[0-9]+//g;
+-		s/ //g;
+-		$line = 1;
+-    }
 -    push(words, $_);
-+    push(@words, ($_));
- }
- close(TRANS_MONO);
- $num = $#words;
-@@ -113,7 +110,7 @@
- }
+-}
+-close(TRANS_MONO);
+-$num = $#words;
++	#### initialize
++	$filenum += 1;
++	
++	$filename = "voices_".sprintf("%04d", $filenum);
++	$monofile = $label."/mono/${filename}.lab";
++	$fullfile = $label."/full/${filename}.lab";
++	$speechfile = $speaker."/${filename}.raw";
++	print "\nStart segmentation $filename ... \n";
++
++	if (-r $speechfile) {
++		#### generate speech grammar 'tmp.dfa' and 'tmp.dict' from transcription
++
++		# clean temporary file
++		unlink("$TMPDIR/tmp.dfa") if (-r "$TMPDIR/tmp.dfa");
++		unlink("$TMPDIR/tmp.dict") if (-r "$TMPDIR/tmp.dict");
++
++		## read transcription
++		@words=();
++		$line = 0;
++		open(TRANS_MONO, "$monofile");
++		while(<TRANS_MONO>) {
++			chomp;
++			next if /^[ \t\n]*$/;
++			if($line == 1){
++				s/pau/sp/;
++				s/A/a/;
++				s/I/i/;
++				s/U/u/;
++				s/E/e/;
++				s/O/o/;
++				s/cl/q/;
++				s/sil$/silE/;
++				s/[0-9]+//g;
++				s/ //g;
++			}
++			if($line == 0){
++				s/sil$/silB/;
++				s/[0-9]+//g;
++				s/ //g;
++				$line = 1;
++			}
++			push(@words, ($_));
++		}
++		close(TRANS_MONO);
++		$num = $#words;
  
- #### execute Julius4 and store the output to log
+-# write dfa
+-open(DFA, ">$TMPDIR/tmp.dfa");
+-for ($i = 0; $i <= $num; $i++) {
+-    $str = sprintf("%d %d %d 0", $i, $num - $i, $i + 1);
+-    if ($i == 0) {
+-	$str .= " 1\n";
+-    } else {
+-	$str .= " 0\n";
+-    }
+-    print DFA "$str";
+-}
+-$str = sprintf("%d -1 -1 1 0\n", $num + 1);
+-print DFA "$str";
+-close(DFA);
+-
+-# write dict
+-open(DICT, ">$TMPDIR/tmp.dict");
+-for ($i = 0; $i <= $num; $i++) {
+-    $w = shift(@words);
+-    $str = "$i [w_$i] $w\n";
+-    $WLIST{"w_$i"} = "$w";
+-    print DICT "$str";
+-}
+-close(DICT);
++		# write dfa
++		open(DFA, ">$TMPDIR/tmp.dfa");
++		for ($i = 0; $i <= $num; $i++) {
++			$str = sprintf("%d %d %d 0", $i, $num - $i, $i + 1);
++			if ($i == 0) {
++			$str .= " 1\n";
++			} else {
++			$str .= " 0\n";
++			}
++			print DFA "$str";
++		}
++		$str = sprintf("%d -1 -1 1 0\n", $num + 1);
++		print DFA "$str";
++		close(DFA);
++
++		# write dict
++		open(DICT, ">$TMPDIR/tmp.dict");
++		for ($i = 0; $i <= $num; $i++) {
++			$w = shift(@words);
++			$str = "$i [w_$i] $w\n";
++			$WLIST{"w_$i"} = "$w";
++			print DICT "$str";
++		}
++		close(DICT);
+ 
+-# check generated files
+-if ((! -r "$TMPDIR/tmp.dfa") || (! -f "$TMPDIR/tmp.dfa")) {
+-    die "Error: failed to make \"$TMPDIR/tmp.dfa\"\n";
+-}
+-if ((! -r "$TMPDIR/tmp.dict") || (! -f "$TMPDIR/tmp.dict")) {
+-    die "Error: failed to make \"$TMPDIR/tmp.dict\"\n";
+-}
++		# check generated files
++		if ((! -r "$TMPDIR/tmp.dfa") || (! -f "$TMPDIR/tmp.dfa")) {
++			die "Error: failed to make \"$TMPDIR/tmp.dfa\"\n";
++		}
++		if ((! -r "$TMPDIR/tmp.dict") || (! -f "$TMPDIR/tmp.dict")) {
++			die "Error: failed to make \"$TMPDIR/tmp.dict\"\n";
++		}
+ 
+-#### execute Julius4 and store the output to log
 -$command = "echo $speechfile | $julius4bin -h $hmmdefs -dfa $TMPDIR/tmp.dfa -v $TMPDIR/tmp.dict -input file -spmodel null -48 -palign";
-+$command = "echo $speechfile | $julius4bin -h $hmmdefs -dfa $TMPDIR/tmp.dfa -v $TMPDIR/tmp.dict -input file -spmodel null -palign";
- system("$command > ${monofile}.log");
- 
- #### remove temporary file
-@@ -172,6 +169,6 @@
- close(TRANS_MONO);
- close(TRANS_FULL);
- unlink "${monofile}.log";
+-system("$command > ${monofile}.log");
+-
+-#### remove temporary file
+-unlink("$TMPDIR/tmp.dfa");
+-unlink("$TMPDIR/tmp.dict");
+-
+-#### open result file for writing
+-$logfile_mono = "${speaker}/data/mono/${filename}.lab";
+-$logfile_mono =~ s/wav//;
+-$logfile_full = "${speaker}/data/full/${filename}.lab";
+-$logfile_full =~ s/wav//;
+-open(RESULT_MONO, ">$logfile_mono");
+-open(RESULT_FULL, ">$logfile_full");
+-
+-#### parse log and append result to speechfile.align
+-open(LOG, "${monofile}.log");
+-open(TRANS_MONO, "$monofile");
+-open(TRANS_FULL, "$fullfile");
+-$sw = 0;
+-while(<LOG>) {
+-    chomp;
+-    if (/re-computed AM score:/) {
++		#### execute Julius4 and store the output to log
++		$command = "echo $speechfile | $julius4bin -h $hmmdefs -dfa $TMPDIR/tmp.dfa -v $TMPDIR/tmp.dict -input file -spmodel null -palign";
++		system("$command > ${monofile}.log");
++
++		#### remove temporary file
++		unlink("$TMPDIR/tmp.dfa");
++		unlink("$TMPDIR/tmp.dict");
++
++		#### open result file for writing
++		$logfile_mono = "${speaker}/data/mono/${filename}.lab";
++		$logfile_mono =~ s/wav//;
++		$logfile_full = "${speaker}/data/full/${filename}.lab";
++		$logfile_full =~ s/wav//;
++		open(RESULT_MONO, ">$logfile_mono");
++		open(RESULT_FULL, ">$logfile_full");
++
++		#### parse log and append result to speechfile.align
++		open(LOG, "${monofile}.log");
++		open(TRANS_MONO, "$monofile");
++		open(TRANS_FULL, "$fullfile");
+ 		$sw = 0;
+-    }
+-	if($sw == 2){
+-			$data_mono = <TRANS_MONO>;
+-			$data_mono =~ s/\n//;
+-			$data_mono =~ s/^[0-9]+ [0-9]+//g;
+-			$data_full = <TRANS_FULL>;
+-			$data_full =~ s/\n//;
+-			$data_full =~ s/^[0-9]+ [0-9]+//g;
+-		s/-[0-9]+.[0-9]+//;
+-		s/[[]//;
+-		s/[]]//;
+-		s/[a-zA-Z]+//g;
+-		s/ +//;
+-		s/ +/ /g;
+-		@num = split(/\s/, $_);
+-		$num[0] = $num[0] * 100000;
+-		$num[1] = ($num[1]+1) * 100000;
+-		if($num[1]!=0){
+-			print RESULT_MONO "@num"."$data_mono\n";
+-			print RESULT_FULL "@num"."$data_full\n";
++		while(<LOG>) {
++			chomp;
++			if (/re-computed AM score:/) {
++				$sw = 0;
++			}
++			if($sw == 2){
++					$data_mono = <TRANS_MONO>;
++					$data_mono =~ s/\n//;
++					$data_mono =~ s/^[0-9]+ [0-9]+//g;
++					$data_full = <TRANS_FULL>;
++					$data_full =~ s/\n//;
++					$data_full =~ s/^[0-9]+ [0-9]+//g;
++				s/-[0-9]+.[0-9]+//;
++				s/[[]//;
++				s/[]]//;
++				s/[a-zA-Z]+//g;
++				s/ +//;
++				s/ +/ /g;
++				@num = split(/\s/, $_);
++				$num[0] = $num[0] * 100000;
++				$num[1] = ($num[1]+1) * 100000;
++				if($num[1]!=0){
++					print RESULT_MONO "@num"."$data_mono\n";
++					print RESULT_FULL "@num"."$data_full\n";
++				}
++			}
++			if($sw == 1){
++				$sw = 2;
++			}
++			if (/ id: from  to    n_score    unit/) {
++				$sw = 1;
++			}
+ 		}
++		close(LOG);
++		close(RESULT_MONO);
++		close(RESULT_FULL);
++		close(TRANS_MONO);
++		close(TRANS_FULL);
++		unlink "${monofile}.log";
++		system("sox -r 16k -e signed-integer -b 16 -B $speechfile -r 48k -L ${speaker}/data/raw/${filename}.raw");
++
++	} else {
++		## No more files can be found
++		print "\nNo more files can be found. Done.\n\n";
++		exit;
+ 	}
+-	if($sw == 1){
+-		$sw = 2;
+-	}
+-    if (/ id: from  to    n_score    unit/) {
+-		$sw = 1;
+-    }
+-}
+-close(LOG);
+-close(RESULT_MONO);
+-close(RESULT_FULL);
+-close(TRANS_MONO);
+-close(TRANS_FULL);
+-unlink "${monofile}.log";
 -system("echo $speechfile | sox -t wav $speechfile -t raw -L -2 -s ${speaker}/data/raw/${filename}.raw");
-+system("sox -r 16k -e signed-integer -b 16 -B $speechfile -r 48k -L ${speaker}/data/raw/${filename}.raw");
- }
+-}
  }

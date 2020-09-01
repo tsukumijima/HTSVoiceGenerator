@@ -21,3 +21,63 @@ diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/Makefile.in HTS-demo_NIT-AT
 +	@PERL@ scripts/Training.pl ./scripts/Config.pm > log 2>&1 &
  
  clean: clean-data clean-voice
+diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/data/Makefile.in HTS-demo_NIT-ATR503-M001/data/Makefile.in
+--- HTS-demo_NIT-ATR503-M001_original/data/Makefile.in	2015-12-21 17:38:36.000000000 +0900
++++ HTS-demo_NIT-ATR503-M001/data/Makefile.in	2020-09-02 00:33:50.160466915 +0900
+@@ -102,7 +102,7 @@
+ 	# Extracting features from raw audio
+ 	mkdir -p mgc lf0 bap
+ 	SAMPKHZ=`echo $(SAMPFREQ) | $(X2X) +af | $(SOPR) -m 0.001 | $(X2X) +fa`; \
+-	for raw in raw/$(DATASET)_$(SPEAKER)_*.raw; do \
++	for raw in raw/*.raw; do \
+ 		base=`basename $${raw} .raw`; \
+ 		min=`$(X2X) +sf $${raw} | $(MINMAX) | $(X2X) +fa | head -n 1`; \
+ 		max=`$(X2X) +sf $${raw} | $(MINMAX) | $(X2X) +fa | tail -n 1`; \
+@@ -192,7 +192,7 @@
+ cmp: 
+ 	# Composing training data files from extracted features
+ 	mkdir -p cmp
+-	for raw in raw/$(DATASET)_$(SPEAKER)_*.raw; do \
++	for raw in raw/*.raw; do \
+ 		base=`basename $${raw} .raw`; \
+ 		echo "Composing training data for $${base}"; \
+ 		if [ $(USESTRAIGHT) -eq 0 ]; then \
+@@ -262,17 +262,17 @@
+ mlf:
+ 	# Generating monophone and fullcontext Master Label Files (MLF)
+ 	echo "#!MLF!#" > labels/mono.mlf
+-	echo "\"*/$(DATASET)_$(SPEAKER)_*.lab\" -> \"@PWD@/data/labels/mono\"" >> labels/mono.mlf
++	echo "\"*/*.lab\" -> \"@PWD@/data/labels/mono\"" >> labels/mono.mlf
+ 
+ 	echo "#!MLF!#" > labels/full.mlf
+-	echo "\"*/$(DATASET)_$(SPEAKER)_*.lab\" -> \"@PWD@/data/labels/full\"" >> labels/full.mlf
++	echo "\"*/*.lab\" -> \"@PWD@/data/labels/full\"" >> labels/full.mlf
+ 
+ list:
+ 	# Generating a fullcontext model list file
+ 	mkdir -p lists
+ 
+ 	rm -f tmp
+-	for lab in labels/full/$(DATASET)_$(SPEAKER)_*.lab; do \
++	for lab in labels/full/*.lab; do \
+ 		if [ -s $${lab} -a -s labels/mono/`basename $${lab}` -a -s cmp/`basename $${lab} .lab`.cmp ]; then \
+ 			sed -e "s/.* //g" $${lab} >> tmp; \
+ 		fi \
+@@ -291,7 +291,7 @@
+ 
+ 	# Generating a monophone list file
+ 	rm -f tmp
+-	for lab in labels/mono/$(DATASET)_$(SPEAKER)_*.lab; do \
++	for lab in labels/mono/*.lab; do \
+ 		if [ -s $${lab} -a -s labels/full/`basename $${lab}` -a -s cmp/`basename $${lab} .lab`.cmp ]; then \
+ 			sed -e "s/.* //g" $${lab} >> tmp; \
+ 		fi \
+@@ -304,7 +304,7 @@
+ 	mkdir -p scp
+ 
+ 	rm -f scp/train.scp
+-	for cmp in @PWD@/data/cmp/$(DATASET)_$(SPEAKER)_*.cmp; do \
++	for cmp in @PWD@/data/cmp/*.cmp; do \
+ 		if [ -s $${cmp} -a -s labels/mono/`basename $${cmp} .cmp`.lab -a -s labels/full/`basename $${cmp} .cmp`.lab ]; then \
+ 			echo $${cmp} >> scp/train.scp; \
+ 		fi \

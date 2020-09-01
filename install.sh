@@ -18,7 +18,7 @@ TOOLSDIR=`pwd`
 
 # パッケージのインストール
 sudo apt-get update
-sudo apt-get -y install build-essential autoconf ffmpeg sox libsox-fmt-all libpulse-dev libasound-dev hts-voice-nitech-jp-atr503-m001 cmake csh libx11-dev flac jq
+sudo apt-get -y install build-essential autoconf python3 ffmpeg sox libsox-fmt-all libpulse-dev libasound-dev hts-voice-nitech-jp-atr503-m001 cmake curl csh libx11-dev flac jq
 
 # julius のビルド
 wget https://github.com/julius-speech/julius/archive/v4.5.tar.gz
