@@ -91,7 +91,7 @@ do
   # テキストファイルを除外
   if [ "${file##*.}" != 'txt' ]; then
 
-    echo -e "Convert ${file} to ${file}.raw"
+    echo -e "Convert ${file} to ${file%.*}.raw"
 
     # ffmpeg で wav に変換しておく
     ffmpeg -i ${INPUTDIRPATH}/${file} -acodec pcm_s16le -ar 44100 "${INPUTDIRPATH}/${file%.*}.wav" > /dev/null 2>&1
@@ -186,7 +186,7 @@ done
 cd "$STARTPATH"
 if [ -e tools/HTS-demo_NIT-ATR503-M001/voices/qst001/ver1/nitech_jp_atr503_m001.htsvoice ]; then
   cp tools/HTS-demo_NIT-ATR503-M001/voices/qst001/ver1/nitech_jp_atr503_m001.htsvoice "${HTSVOICEPATH}"
-  echo -e "\nOutput to \"${HTSVOICEPATH}\". Done.\n"
+  echo -e "\n\nOutput to \"${HTSVOICEPATH}\". Done.\n"
 else
-  echo -e "\nCouldn't Output to \"${HTSVOICEPATH}\". Failed.\n"
+  echo -e "\n\nCouldn't Output to \"${HTSVOICEPATH}\". Failed.\n"
 fi

@@ -1,6 +1,6 @@
-diff -u -r splitAndGetLabel_original/CMakeLists.txt splitAndGetLabel/CMakeLists.txt
+diff -u -r -x build splitAndGetLabel_original/CMakeLists.txt splitAndGetLabel/CMakeLists.txt
 --- splitAndGetLabel_original/CMakeLists.txt	2017-11-12 18:51:51.000000000 +0900
-+++ splitAndGetLabel/CMakeLists.txt	2020-08-31 12:13:52.308721640 +0900
++++ splitAndGetLabel/CMakeLists.txt	2020-09-02 01:43:08.936705162 +0900
 @@ -1,5 +1,7 @@
  cmake_minimum_required(VERSION 3.5.1)
  
@@ -20,9 +20,9 @@ diff -u -r splitAndGetLabel_original/CMakeLists.txt splitAndGetLabel/CMakeLists.
 +    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 +    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 +endif()
-diff -u -r splitAndGetLabel_original/execJulius.cpp splitAndGetLabel/execJulius.cpp
+diff -u -r -x build splitAndGetLabel_original/execJulius.cpp splitAndGetLabel/execJulius.cpp
 --- splitAndGetLabel_original/execJulius.cpp	2017-11-12 18:51:51.000000000 +0900
-+++ splitAndGetLabel/execJulius.cpp	2020-08-31 12:00:17.419460234 +0900
++++ splitAndGetLabel/execJulius.cpp	2020-09-02 03:27:47.091902682 +0900
 @@ -20,15 +20,15 @@
  	argv[1] = new char[64];
  	strcpy(argv[1], "-C");
@@ -51,9 +51,18 @@ diff -u -r splitAndGetLabel_original/execJulius.cpp splitAndGetLabel/execJulius.
  	}
  	argv[9] = new char[64];
  	strcpy(argv[9], "-input");
-diff -u -r splitAndGetLabel_original/recordAndSplit.cpp splitAndGetLabel/recordAndSplit.cpp
+@@ -85,6 +85,8 @@
+ 	char *copyedInputFilePath = new char[inputFilePath.size() + 1];
+  	strcpy(copyedInputFilePath, inputFilePath.c_str());
+ 
++	printf("\nexecJulius: %s\n", copyedInputFilePath);
++
+ 	switch (j_open_stream(recog, copyedInputFilePath)) {
+ 	case 0:
+ 		break;
+diff -u -r -x build splitAndGetLabel_original/recordAndSplit.cpp splitAndGetLabel/recordAndSplit.cpp
 --- splitAndGetLabel_original/recordAndSplit.cpp	2017-11-12 18:51:51.000000000 +0900
-+++ splitAndGetLabel/recordAndSplit.cpp	2020-08-31 12:05:59.849196839 +0900
++++ splitAndGetLabel/recordAndSplit.cpp	2020-09-02 03:38:16.344735189 +0900
 @@ -32,32 +32,32 @@
  		return;
  	}
@@ -67,57 +76,76 @@ diff -u -r splitAndGetLabel_original/recordAndSplit.cpp splitAndGetLabel/recordA
  		char toStr[MAXLINELEN];
  
 -		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/data/raw/a%02d.raw", no);
-+		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/raw/a%02d.raw", no);
- 		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/raw/nitech_jp_atr503_m001_%s%02d.raw", fileCountAlphabet.c_str(), no);
+-		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/raw/nitech_jp_atr503_m001_%s%02d.raw", fileCountAlphabet.c_str(), no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/raw/voices_%04d.raw", no);
++		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/raw/voices_%04d.raw", no);
  		rename(fromStr, toStr);
  
 -		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/data/mono/a%02d.lab", no);
-+		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/mono/a%02d.lab", no);
- 		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/mono/nitech_jp_atr503_m001_%s%02d.lab", fileCountAlphabet.c_str(), no);
+-		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/mono/nitech_jp_atr503_m001_%s%02d.lab", fileCountAlphabet.c_str(), no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/mono/voices_%04d.lab", no);
++		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/mono/voices_%04d.lab", no);
  		rename(fromStr, toStr);
  
 -		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/data/full/a%02d.lab", no);
-+		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/full/a%02d.lab", no);
- 		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/full/nitech_jp_atr503_m001_%s%02d.lab", fileCountAlphabet.c_str(), no);
+-		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/full/nitech_jp_atr503_m001_%s%02d.lab", fileCountAlphabet.c_str(), no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/data/full/voices_%04d.lab", no);
++		snprintf(toStr, MAXLINELEN, "../../HTS-demo_NIT-ATR503-M001/data/labels/full/voices_%04d.lab", no);
  		rename(fromStr, toStr);
  
 -		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/a%02d.raw", no);
-+		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/a%02d.raw", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/voices_%04d.raw", no);
  		remove(fromStr);
  
 -		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/mono/a%02d.lab", no);
-+		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/labels/mono/a%02d.lab", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/labels/mono/voices_%04d.lab", no);
  		remove(fromStr);
  
 -		snprintf(fromStr, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/full/a%02d.lab", no);
-+		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/labels/full/a%02d.lab", no);
++		snprintf(fromStr, MAXLINELEN, "../../segment_adapt/voices/labels/full/voices_%04d.lab", no);
  		remove(fromStr);
  	}
  
-@@ -141,7 +141,7 @@
+@@ -141,7 +141,9 @@
  	}
  
  	char rawFilePath[MAXLINELEN];
 -	snprintf(rawFilePath, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/a%02d.raw", fileCount);
-+	snprintf(rawFilePath, MAXLINELEN, "../../segment_adapt/voices/a%02d.raw", fileCount);
++	snprintf(rawFilePath, MAXLINELEN, "../../segment_adapt/voices/voices_%04d.raw", fileCount);
++		
++	printf("\nVoice: ../../segment_adapt/voices/voices_%04d.raw\n", fileCount);
  
  	FILE *rawFp = fopen(rawFilePath, "wb");
  	if (rawFp == NULL) {
-@@ -317,7 +317,7 @@
+@@ -317,7 +319,9 @@
  	} while (strcmp(log, "[Output label]\n") != 0);
  
  	char monoFilePath[MAXLINELEN];
 -	snprintf(monoFilePath, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/mono/a%02d.lab", fileCount);
-+	snprintf(monoFilePath, MAXLINELEN, "../../segment_adapt/voices/labels/mono/a%02d.lab", fileCount);
++	snprintf(monoFilePath, MAXLINELEN, "../../segment_adapt/voices/labels/mono/voices_%04d.lab", fileCount);
++		
++	printf("Label (mono): ../../segment_adapt/voices/labels/mono/voices_%04d.lab\n", fileCount);
  
  	FILE *monoFp = fopen(monoFilePath, "w");
  	if (monoFp == NULL) {
-@@ -328,7 +328,7 @@
+@@ -328,7 +332,9 @@
  	}
  
  	char fullFilePath[MAXLINELEN];
 -	snprintf(fullFilePath, MAXLINELEN, "../../segment_adapt_windows-v1.0/akihiro/labels/full/a%02d.lab", fileCount);
-+	snprintf(fullFilePath, MAXLINELEN, "../../segment_adapt/voices/labels/full/a%02d.lab", fileCount);
++	snprintf(fullFilePath, MAXLINELEN, "../../segment_adapt/voices/labels/full/voices_%04d.lab", fileCount);
++		
++	printf("Label (full): ../../segment_adapt/voices/labels/full/voices_%04d.lab\n", fileCount);
  
  	FILE *fullFp = fopen(fullFilePath, "w");
  	if (fullFp == NULL) {
+@@ -431,9 +437,6 @@
+ 	remove("tmp.txt");
+ 
+ 	fileCount++;
+-	if (fileCount >= 100) {
+-		segmentAndRefresh();
+-	}
+ 
+ 	delete[] allSpeech;
+ }
