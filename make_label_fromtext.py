@@ -45,7 +45,8 @@ def main():
     textfile_list = sorted(glob.glob(input_folder + '*.txt'))
 
     # テキストファイルごとに
-    for index, textfile in enumerate(textfile_list):
+    index = 0
+    for textfile in textfile_list:
 
         # index を足す
         index += 1
@@ -73,52 +74,64 @@ def main():
             # ログを読み込む
             lines = log.readlines()
 
-        # 音声ファイルの出力先
-        voice_old = output_folder + textfile_id + '.raw'
-        voice_new = output_folder + 'voices_' + str(index).zfill(4) + '.raw'
-        print('Voice: ' + voice_new)
+        # ログが空でないなら
+        if ''.join(lines) != "":
 
-        # 音声ファイルを連番のファイル名にリネーム
-        os.rename(voice_old, voice_new)
+            # 音声ファイルの出力先
+            voice_old = output_folder + textfile_id + '.raw'
+            voice_new = output_folder + 'voices_' + str(index).zfill(4) + '.raw'
+            print('Voice: ' + voice_old)
+            print('Voice rename: ' + voice_new)
 
-        # フルコンテキスト (full) ラベルの出力先
-        label_full = output_folder + 'labels/full/voices_' + str(index).zfill(4) + '.lab'
-        print('Label (full): ' + label_full)
+            # 音声ファイルを連番のファイル名にリネーム
+            os.rename(voice_old, voice_new)
 
-        # 単音 (mono) ラベルの出力先
-        label_mono = output_folder + 'labels/mono/voices_' + str(index).zfill(4) + '.lab'
-        print('Label (mono): ' + label_mono)
+            # フルコンテキスト (full) ラベルの出力先
+            label_full = output_folder + 'labels/full/voices_' + str(index).zfill(4) + '.lab'
+            print('Label (full): ' + label_full)
 
-        # フルコンテキストラベルを書き込む
-        for line in lines:
-            if line.find('0000') >= 0 and line.find('xx/') >= 0:
-                with open(label_full, mode = 'a', encoding = 'utf-8') as full_rfp:
-                    full_rfp.write(line)
+            # 単音 (mono) ラベルの出力先
+            label_mono = output_folder + 'labels/mono/voices_' + str(index).zfill(4) + '.lab'
+            print('Label (mono): ' + label_mono)
 
-        # 単音ラベルを書き込む
-        # 先ほど書きこんだフルコンテキストラベルを開く
-        with open(label_full, mode = 'rt', encoding = 'utf-8') as full_wfp:
+            # フルコンテキストラベルを書き込む
+            for line in lines:
+                if line.find('0000') >= 0 and line.find('xx/') >= 0:
+                    with open(label_full, mode = 'a', encoding = 'utf-8') as full_rfp:
+                        full_rfp.write(line)
 
-            # 行ごとに
-            for line in full_wfp:
-                mono = []
-                words = line.split(' ')
+            # 単音ラベルを書き込む
+            # 先ほど書きこんだフルコンテキストラベルを開く
+            with open(label_full, mode = 'rt', encoding = 'utf-8') as full_wfp:
 
-                # 文字ごと
-                for word in words:
-                    if '+' in word:
-                        ws1 = word.split('+')[0]
-                        ws2 = ws1.split('-')[1]
-                        mono.append(ws2)
-                        _str = ' '.join(map(str, mono))
-                    else:
-                        mono.append(word)
+                # 行ごとに
+                for line in full_wfp:
+                    mono = []
+                    words = line.split(' ')
 
-                # 単音ラベルを書き込み
-                mono_str = ' '.join(map(str, mono))
-                # print(mono_str)
-                with open(label_mono, mode = 'a', encoding = 'utf-8') as mono_wfp:
-                    mono_wfp.write(mono_str + '\n')
+                    # 文字ごと
+                    for word in words:
+                        if '+' in word:
+                            ws1 = word.split('+')[0]
+                            ws2 = ws1.split('-')[1]
+                            mono.append(ws2)
+                            _str = ' '.join(map(str, mono))
+                        else:
+                            mono.append(word)
+
+                    # 単音ラベルを書き込み
+                    mono_str = ' '.join(map(str, mono))
+                    # print(mono_str)
+                    with open(label_mono, mode = 'a', encoding = 'utf-8') as mono_wfp:
+                        mono_wfp.write(mono_str + '\n')
+
+        # ログが空の場合、処理をスキップする
+        else:
+            # インデックスを減らす
+            index -= 1
+
+            # ボイスファイルを削除
+            os.remove(output_folder + textfile_id + '.raw')
 
         print()
 
