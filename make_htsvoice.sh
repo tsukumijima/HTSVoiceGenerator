@@ -130,10 +130,10 @@ if [ ${APIMODE} = "T" ] ; then
 
 # splitAndGetLabel でラベルデータを作成
 elif [ ${APIMODE} = "J" ] ; then
-  echo -e "\nExecute splitAndGetLabel ...\n"
+  echo -e "\nExecute splitAndGetLabel ..."
   ./splitAndGetLabel ${OPTIONS}
 else
-  echo -e "\nExecute splitAndGetLabel ...\n"
+  echo -e "\nExecute splitAndGetLabel ..."
   ./splitAndGetLabel -${APIMODE} ${APIKEY} ${OPTIONS}
 fi
 
@@ -155,6 +155,15 @@ fi
 # make を実行
 make clean
 make
+
+# 5 秒スリープ
+echo -e "\n---------------------------------------------------------------------------------------"
+echo -e "\nRunning training ...\n"
+echo -e "You can check the training log by running \"tail -f tools/HTS-demo_NIT-ATR503-M001/log\"."
+echo -e "If you want to kill the training, "
+echo -e "run \"ps aux | grep Training.pl | grep -v grep | awk'{ print \"kill -9\", \$2 }'| sh\"."
+echo -e "\n---------------------------------------------------------------------------------------\n"
+sleep 5
 
 # プロセスが実行されている間待機する
 # 出力内容は tail -f tools/HTS-demo_NIT-ATR503-M001/log でも確認できる
