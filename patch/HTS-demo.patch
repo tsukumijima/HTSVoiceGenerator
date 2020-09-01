@@ -21,6 +21,7 @@ diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/Makefile.in HTS-demo_NIT-AT
 +	@PERL@ scripts/Training.pl ./scripts/Config.pm > log 2>&1 &
  
  clean: clean-data clean-voice
+
 diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/data/Makefile.in HTS-demo_NIT-ATR503-M001/data/Makefile.in
 --- HTS-demo_NIT-ATR503-M001_original/data/Makefile.in	2015-12-21 17:38:36.000000000 +0900
 +++ HTS-demo_NIT-ATR503-M001/data/Makefile.in	2020-09-02 00:33:50.160466915 +0900
