@@ -48,8 +48,8 @@ cd ..
 mkdir htk
 tar zxvf $HTKPATH
 tar zxvf $HDECODEPATH
-# wget http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
-wget https://web.archive.org/web/20160605183450if_/http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
+wget http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
+# wget https://web.archive.org/web/20160605183450if_/http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
 mkdir HTS-2.3_for_HTK-3.4.1
 tar jxvf HTS-2.3_for_HTK-3.4.1.tar.bz2 -C HTS-2.3_for_HTK-3.4.1
 cp HTS-2.3_for_HTK-3.4.1/HTS-2.3_for_HTK-3.4.1.patch htk
@@ -81,8 +81,8 @@ make install
 cd ..
 
 # HTS-demo のビルド
-#wget http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2
-wget https://web.archive.org/web/20200720111752if_/http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2
+wget http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2
+# wget https://web.archive.org/web/20200720111752if_/http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2
 tar jxvf HTS-demo_NIT-ATR503-M001.tar.bz2
 cd HTS-demo_NIT-ATR503-M001/
 cp ../../patch/HTS-demo.patch .
