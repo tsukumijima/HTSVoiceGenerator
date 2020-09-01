@@ -62,6 +62,7 @@ def main():
 
             # 改行を削除
             text = text.replace('\n', '　')
+            text = text.replace('{player}', '')
             print('Text: ' + text)
 
         # OpenJTalk を実行
