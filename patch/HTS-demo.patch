@@ -6,7 +6,7 @@ diff -u -r -x data HTS-demo_NIT-ATR503-M001_original/scripts/Config.pm.in HTS-de
  $nState      = @NSTATE@;        # number of states
  $nIte        = @NITER@;         # number of iterations for embedded training
 -$beam        = '1500 100 5000'; # initial, inc, and upper limit of beam width
-+$beam        = '3000 200 10000'; # initial, inc, and upper limit of beam width
++$beam        = '3000 200 20000'; # initial, inc, and upper limit of beam width
  $maxdev      = @MAXDEV@;        # max standard dev coef to control HSMM maximum duration
  $mindur      = @MINDUR@;        # min state duration to be evaluated
  $wf          = @WFLOOR@;        # mixture weight flooring
