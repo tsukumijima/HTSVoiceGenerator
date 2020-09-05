@@ -19,7 +19,7 @@ APIKEY=""
 OPTIONS=""
 
 UPPERF0=500 # 基本周波数抽出の上限 (Hz) (女性の声の場合は 500 (Hz)・男性の声の場合は 200 (Hz) 程度が良いらしい)
-NITER=10 # トレーニングの反復回数 (増やすと精度が上がるらしいが、その分時間がかかる)
+NITER=50 # トレーニングの反復回数 (増やすと精度が上がるらしいが、その分時間がかかる)
 
 STARTPATH=`pwd`
 
@@ -146,10 +146,10 @@ echo -e "File count: ${fileCount}\n"
 
 if [ ${fileCount} -lt 503 ] ; then
   # ファイル数が 503 以下 (ファイル数が少なくなればなるほどトレーニングの反復回数が増える)
-  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin UPPERF0=${UPPERF0} NITER=`expr 503 \* ${NITER} / ${fileCount}`
+  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin REQWARP=0.55 MAXGVITER=100 UPPERF0=${UPPERF0} NITER=`expr 503 \* ${NITER} / ${fileCount}`
 else
   # ファイル数が 503 以上
-  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin UPPERF0=${UPPERF0} NITER=${NITER}
+  ./configure --with-sptk-search-path=${toolsDir}/SPTK/bin --with-hts-search-path=${toolsDir}/htk/bin --with-hts-engine-search-path=${toolsDir}/hts_engine_API/bin REQWARP=0.55 MAXGVITER=100 UPPERF0=${UPPERF0} NITER=${NITER}
 fi
 
 # make を実行
